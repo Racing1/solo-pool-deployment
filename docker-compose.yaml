@@ -1,0 +1,54 @@
+---
+version: '3'
+services:
+  solo-pool:
+    image: moneromint/solo-pool
+    ports:
+      - '3333:3333'
+      - '8000:8000'
+    environment:
+      # Change this!
+      SOLOPOOL_DAEMON: 'http://node.xmr.to:28081/json_rpc'
+      SOLOPOOL_WALLET: 9vmn8Vyxh6JEVmPr4qTcj3ND3FywDpMXH2fVLLEARyKCJTc3jWjxeWcbRNcaa57Bj36cARBSfWnfS89oFVKBBvGTAegdRxG
+      SOLOPOOL_PORT: '3333'
+      SOLOPOOL_HTTP_PORT: '8000'
+    restart: on-failure
+
+  grafana:
+    image: grafana/grafana:7.0.1
+    ports:
+      - '8080:3000'
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - './grafana:/etc/grafana/provisioning'
+      - 'grafana_data:/var/lib/grafana'
+    restart: on-failure
+
+  prometheus:
+    image: prom/prometheus:v2.18.1
+    volumes:
+      - './prometheus:/etc/prometheus/'
+      - 'prometheus_data:/prometheus'
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: on-failure
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - '^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+    restart: on-failure
+
+volumes:
+  grafana_data: ~
+  prometheus_data: ~

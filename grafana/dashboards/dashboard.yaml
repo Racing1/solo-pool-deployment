@@ -1,0 +1,10 @@
+---
+apiVersion: 1
+providers:
+  - name: 'docker-compose'
+    type: file
+    orgId: 1
+    disableDeletion: true
+    updateIntervalSeconds: 120
+    options:
+      path: /etc/grafana/provisioning/dashboards
