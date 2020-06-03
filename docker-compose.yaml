@@ -8,10 +8,28 @@ services:
       - '8000:8000'
     environment:
       # Change this!
-      SOLOPOOL_DAEMON: 'http://node.xmr.to:28081/json_rpc'
-      SOLOPOOL_WALLET: 9vmn8Vyxh6JEVmPr4qTcj3ND3FywDpMXH2fVLLEARyKCJTc3jWjxeWcbRNcaa57Bj36cARBSfWnfS89oFVKBBvGTAegdRxG
+      SOLOPOOL_DAEMON: 'http://monerod:18081/json_rpc'
+      SOLOPOOL_WALLET: 41fJjQDhryD11111111111111111111111111111111112N1GuTZeagfRbbKcALdcZev4QXGGuoLh2x36LhaxLSxCc2YDhi
       SOLOPOOL_PORT: '3333'
       SOLOPOOL_HTTP_PORT: '8000'
+    depends_on:
+      - monerod
+    restart: on-failure
+
+  monerod:
+    image: moneromint/monerod:v0.16.0.0
+    ports:
+      - '18080:18080'
+    command:
+      - '--non-interactive'
+      - '--data-dir'
+      - '/data'
+      - '--rpc-bind-ip'
+      - '0.0.0.0'
+      - '--confirm-external-bind'
+      - '--restricted-rpc'
+    volumes:
+      - 'monero_data:/data'
     restart: on-failure
 
   grafana:
@@ -50,5 +68,6 @@ services:
     restart: on-failure
 
 volumes:
+  monero_data: ~
   grafana_data: ~
   prometheus_data: ~
